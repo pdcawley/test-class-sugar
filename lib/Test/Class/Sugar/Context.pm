@@ -45,11 +45,30 @@ sub strip_options {
     while (!$self->looking_at(qr/[{"]/)) {
         $self->strip_base_classes(\%ret)
         // $self->strip_helper_classes(\%ret)
+        // $self->strip_class_under_test(\%ret)
         // croak 'Expected option name';
+        $self->skipspace;
     }
 
     return \%ret;
 }
+
+
+sub strip_class_under_test {
+    my($self, $opts) = @_;
+
+    $self->skipspace;
+
+    return unless $self->strip_string('exercises');
+    Carp::carp("stripped... ", substr($self->get_linestr, $self->offset));
+
+    croak "testclass can only exercise one class" if $opts->{class_under_test};
+
+    $opts->{class_under_test} = $self->strip_name
+      // croak "Expected a class name";
+    return 1;
+}
+
 
 sub strip_helper_classes {
     my($self, $opts) = @_;

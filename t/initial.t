@@ -39,9 +39,16 @@ testclass MultipleHelpers helpers Test::More, Test::Exception {
     }
 };
 
-testclass ShortcutHelper helpers -Exception {
+testclass ShortcutHelper helper -Exception {
     sub exception_test : Test {
         lives_ok { 1 }
+    }
+};
+
+testclass TestClass exercises Test::Class::Sugar {
+    sub test_requirement : Test {
+        my $self = shift;
+        ok $self->class_under_test->isa( 'UNIVERSAL' );
     }
 };
 

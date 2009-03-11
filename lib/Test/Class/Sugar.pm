@@ -56,20 +56,15 @@ sub _parse_testclass {
         $preamble .= "use ${helper};";
     }
 
+    if (my $testedclass = $options->{class_under_test}) {
+        $preamble .= "require ${testedclass}; sub class_under_test { \"${testedclass}\" };"
+    }
+
     my $docstr = $ctx->strip_docstring();
     $ctx->skipspace;
 
     $ctx->inject_if_block($preamble)
         || croak "Expecting an opening brace";
-}
-
-sub _build_preamble {
-    my $pakc = shift;
-    my($classname, $opts) = @_;
-
-    my $baseclasses = join(' ', @{$opts->{extends} || []}) || "Test::Class";
-
-    return "package ${classname}; use base qw/${baseclasses}/; use Test::more;";
 }
 
 sub testclass (&) {}
