@@ -44,17 +44,40 @@ sub strip_options {
 
     while (!$self->looking_at(qr/[{"]/)) {
         $self->strip_base_classes(\%ret)
-          // croak 'Expected option name';
+        // $self->strip_helper_classes(\%ret)
+        // croak 'Expected option name';
     }
 
     return \%ret;
+}
+
+sub strip_helper_classes {
+    my($self, $opts) = @_;
+    $self->skipspace;
+
+    return unless $self->strip_string('helper');
+    $self->strip_string('s');
+
+    $opts->{helpers} //= [];
+
+    while (1) {
+        $self->skipspace;
+        my $helper = '';
+        if ($self->strip_string('-')) {
+            $helper .= 'Test::';
+        }
+
+        $helper .= $self->strip_name
+          // croak "Expecting a test helper name";
+        push @{$opts->{helpers}}, $helper;
+        return 1 unless $self->strip_comma;
+    }
 }
 
 sub strip_base_classes {
     my($self, $ret) = @_;
     $self->skipspace;
 
-    Carp::carp(substr($self->get_linestr, $self->offset));
     return unless $self->strip_string('extends');
 
     while (1) {

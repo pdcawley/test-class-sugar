@@ -48,7 +48,7 @@ sub _parse_testclass {
     my $options = $ctx->strip_options;
 
     my $baseclasses = $options->{base} || "Test::Class";
-    $options->{helpers} = ['Test::Most'];
+    $options->{helpers} //= ['Test::Most'];
 
     $preamble .= "use base qw/${baseclasses}/;";
 
@@ -58,6 +58,7 @@ sub _parse_testclass {
 
     my $docstr = $ctx->strip_docstring();
     $ctx->skipspace;
+
     $ctx->inject_if_block($preamble)
         || croak "Expecting an opening brace";
 }

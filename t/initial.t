@@ -32,4 +32,17 @@ testclass Child2 extends Some::Class::Name, Some::Other::Class::Name {
     }
 };
 
+testclass MultipleHelpers helpers Test::More, Test::Exception {
+    sub multi_test : Test(2) {
+        ok 4;
+        lives_ok { 5 };
+    }
+};
+
+testclass ShortcutHelper helpers -Exception {
+    sub exception_test : Test {
+        lives_ok { 1 }
+    }
+};
+
 Test::Class->runtests;
