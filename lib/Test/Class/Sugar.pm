@@ -4,6 +4,7 @@ use Modern::Perl;
 
 use Devel::Declare ();
 use Devel::Declare::Context::Simple;
+use Test::Class::Sugar::Context;
 use Carp qw/croak/;
 
 use namespace::clean;
@@ -34,23 +35,40 @@ sub _parse_testclass {
 
     local $Carp::Internal{'Devel::Declare'} = 1;
 
-    my $ctx = Devel::Declare::Context::Simple->new->init(@_);
+    my $ctx = Test::Class::Sugar::Context->new->init(@_);
     my $initial_offset = $ctx->offset;
     my $preamble = '';
     my $classname;
 
     $ctx->skip_declarator;
-    if ($classname = $ctx->strip_name) {
-        $preamble .= "package ${classname}; use base Test::Class; use Test::Most;";
-    }
-    else {
-        croak "Expected a class name";
-    }
-    $ctx->skipspace;
-    my $linestr = $ctx->get_linestr;
+    $classname = $ctx->strip_name || croak "Expected a class name";
 
-    Carp::carp '"', $ctx->get_linestr, '"';
-    $ctx->inject_if_block($preamble);
+    $preamble .= "package ${classname};";
+
+    my $options = $ctx->strip_options;
+
+    my $baseclasses = $options->{base} || "Test::Class";
+    $options->{helpers} = ['Test::Most'];
+
+    $preamble .= "use base qw/${baseclasses}/;";
+
+    foreach my $helper (@{$options->{helpers}}) {
+        $preamble .= "use ${helper};";
+    }
+
+    my $docstr = $ctx->strip_docstring();
+    $ctx->skipspace;
+    $ctx->inject_if_block($preamble)
+        || croak "Expecting an opening brace";
+}
+
+sub _build_preamble {
+    my $pakc = shift;
+    my($classname, $opts) = @_;
+
+    my $baseclasses = join(' ', @{$opts->{extends} || []}) || "Test::Class";
+
+    return "package ${classname}; use base qw/${baseclasses}/; use Test::more;";
 }
 
 sub testclass (&) {}
