@@ -56,9 +56,6 @@ sub strip_options {
 
 sub strip_class_under_test {
     my($self, $opts) = @_;
-
-    $self->skipspace;
-
     return unless $self->strip_string('exercises');
     Carp::carp("stripped... ", substr($self->get_linestr, $self->offset));
 
@@ -72,8 +69,6 @@ sub strip_class_under_test {
 
 sub strip_helper_classes {
     my($self, $opts) = @_;
-    $self->skipspace;
-
     return unless $self->strip_string('helper');
     $self->strip_string('s');
 
@@ -95,8 +90,6 @@ sub strip_helper_classes {
 
 sub strip_base_classes {
     my($self, $ret) = @_;
-    $self->skipspace;
-
     return unless $self->strip_string('extends');
 
     while (1) {
