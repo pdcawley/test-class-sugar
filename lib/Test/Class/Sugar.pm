@@ -43,7 +43,7 @@ sub _parse_testclass {
     $ctx->skip_declarator;
     $classname = $ctx->strip_name || croak "Expected a class name";
 
-    $preamble .= "package ${classname};";
+    $preamble .= "package ${classname}; use strict; use warnings;";
 
     my $options = $ctx->strip_options;
 
@@ -70,3 +70,4 @@ sub _parse_testclass {
 sub testclass (&) {}
 
 1;
+
