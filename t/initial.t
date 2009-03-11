@@ -20,10 +20,16 @@ testclass DocumentedClass
     }
 };
 
-# testclass Still::Another::Class extends Some::Class::Name {
-#     sub extra_test : Test {
-#         ok 2, 'Child class test';
-#     }
-# };
+testclass ChildClass extends Some::Class::Name {
+    sub extra_test : Test {
+        ok 2, 'Child class test';
+    }
+};
+
+testclass Child2 extends Some::Class::Name, Some::Other::Class::Name {
+    sub child_test : Test {
+        ok 3;
+    }
+};
 
 Test::Class->runtests;
