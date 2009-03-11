@@ -60,7 +60,10 @@ sub _parse_testclass {
         $preamble .= "require ${testedclass}; sub class_under_test { \"${testedclass}\" };"
     }
 
-    my $docstr = $ctx->strip_docstring();
+    if (my $docstr = $ctx->strip_docstring()) {
+        $preamble .= qq{sub _print_DOCSTRING : Test(startup) { diag ref(\$_[0]),"\n", q{${docstr}} };};
+    }
+
     $ctx->skipspace;
 
     $ctx->inject_if_block($preamble)
