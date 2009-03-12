@@ -32,16 +32,22 @@ testclass Child2 extends Some::Class::Name, Some::Other::Class::Name {
     }
 }
 
-testclass MultipleHelpers helpers Test::More, Test::Exception {
+testclass MultipleHelpers uses Test::More, Test::Exception {
     sub multi_test : Test(2) {
         ok 4;
         lives_ok { 5 };
     }
 }
 
-testclass ShortcutHelper helper -Exception {
+testclass ShortcutHelper uses -Exception {
     sub exception_test : Test {
         lives_ok { 1 }
+    }
+}
+
+testclass AddsCarp +uses Carp, -Warn {
+    sub warning_test : Test {
+        warning_like { carp "foo" } qr/foo/, "expects a warning";
     }
 }
 

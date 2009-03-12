@@ -69,10 +69,16 @@ sub strip_class_under_test {
 
 sub strip_helper_classes {
     my($self, $opts) = @_;
-    return unless $self->strip_string('helper');
-    $self->strip_string('s');
+    my $keyword = 'uses';
+    if ($self->looking_at('+')) {
+        $keyword = "+".$keyword;
+    }
+    return unless $self->strip_string($keyword);
 
-    $opts->{helpers} //= [];
+    $opts->{helpers} //=
+      $keyword eq '+helper'
+        ? [qw/Test::Most/]
+        : [];
 
     while (1) {
         $self->skipspace;
