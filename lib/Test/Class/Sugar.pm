@@ -4,14 +4,17 @@ use Modern::Perl;
 
 use Devel::Declare ();
 use Devel::Declare::Context::Simple;
+use B::Hooks::EndOfScope;
 use Test::Class::Sugar::Context;
+use Sub::Name;
 use Carp qw/croak/;
 
-use namespace::clean;
+#use namespace::clean;
 
 use Sub::Exporter -setup => {
-    exports => [qw/testclass/],
-    groups => {default => [qw/testclass/]},
+    exports => [qw/testclass startup setup test teardown shutdown/],
+    groups => {default => [qw/testclass/],
+               inner   => [qw/startup setup test teardown shutdown/]},
     installer => sub {
         my ($args, $to_export) = @_;
         my $pack = $args->{into};
@@ -22,13 +25,48 @@ use Sub::Exporter -setup => {
                     { $name => { const => sub { $parser->($pack, @_) } } },
                 );
             }
-            if (my $code = __PACKAGE__->can("_extras_for_${name}")) {
-                $code->($pack);
-            }
         }
         Sub::Exporter::default_installer(@_);
     }
 };
+
+sub _parse_test {
+    my $pack = shift;
+
+    local $Carp::Internal{'Devel::Declare'} = 1;
+
+    my $ctx = Test::Class::Sugar::Context->new->init(@_);
+    my $preamble = '';
+    my $classname;
+
+    $ctx->skip_declarator;
+
+    my $name = $ctx->strip_test_name
+        || croak "Can't make a test without a name";
+
+    $preamble .= q{my $test = shift;};
+
+    #$preamble = $ctx->scope_injector_call().$preamble;
+    $ctx->skipspace;
+
+    $ctx->get_curstash_name->add_test($name, test => 1);
+
+    $name = join('::', $ctx->get_curstash_name, $name)
+        unless ($name =~ /::/);
+
+    $ctx->inject_if_block($preamble)
+      // croak "Expected a block";
+
+    say $ctx->get_linestr;
+    $ctx->shadow(
+        sub (&) {
+            say "Adding $name";
+            my $code = shift;
+            no strict 'refs';
+            *{$name} = subname $name => $code
+        });
+    return;
+}
 
 sub _parse_testclass {
     my $pack = shift;
@@ -36,7 +74,6 @@ sub _parse_testclass {
     local $Carp::Internal{'Devel::Declare'} = 1;
 
     my $ctx = Test::Class::Sugar::Context->new->init(@_);
-    my $initial_offset = $ctx->offset;
     my $preamble = '';
     my $classname;
 
@@ -49,12 +86,13 @@ sub _parse_testclass {
     my $options = $ctx->strip_options;
 
     unless ($classname) {
-        $options->{class_under_test} 
+        $options->{class_under_test}
           // croak "Must specify a testclass name or a class to exercise";
         $classname = "Test::" . $options->{class_under_test} ;
     }
 
     $preamble .= "package ${classname}; use strict; use warnings;";
+    $preamble .= "use " . __PACKAGE__ . " qw/-inner/;";
 
     my $baseclasses = $options->{base} || "Test::Class";
     $options->{helpers} //= ['Test::Most'];
@@ -66,7 +104,7 @@ sub _parse_testclass {
     }
 
     if (my $testedclass = $options->{class_under_test}) {
-        $preamble .= "require ${testedclass}; sub class_under_test { \"${testedclass}\" };"
+        $preamble .= "require ${testedclass} unless \%${testedclass}::; sub class_under_test { \"${testedclass}\" };"
     }
 
     if (my $docstr = $ctx->strip_docstring()) {
@@ -79,7 +117,13 @@ sub _parse_testclass {
         || croak "Expecting an opening brace";
 }
 
-sub testclass (&) {}
+sub testclass (&) {shift->()}
+
+sub startup (&) {}
+sub setup (&) {}
+sub test (&) { croak "Should not be called" }
+sub teardown (&) {}
+sub shutdown (&) {}
 
 1;
 

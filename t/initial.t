@@ -1,3 +1,4 @@
+use Modern::Perl;
 use Test::Class::Sugar;
 
 testclass Some::Class::Name {
@@ -58,7 +59,7 @@ testclass TestClass exercises Test::Class::Sugar {
     }
 }
 
-{
+BEGIN {
     package Foo;
     sub foo {'foo'}
 }
@@ -75,5 +76,22 @@ testclass exercises Foo {
     }
 }
 
+testclass WithInnerKeywords {
+    test simpletest {
+        isa_ok $test, 'WithInnerKeywords';
+    };
+
+    test 'named with a string' {
+        is $test->current_method, 'named_with_a_string';
+    }
+
+    # test named with multiple symbols {
+    #     is $test->current_method, 'named_with_multiple_symbols';
+    # }
+}
+
+#say WithInnerKeywords::simpletest();
+
+say WithInnerKeyWords->can('simpletest');
 
 Test::Class->runtests;
