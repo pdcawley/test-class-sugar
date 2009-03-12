@@ -66,7 +66,7 @@ sub _parse_testclass {
 
     $ctx->skipspace;
 
-    $ctx->inject_if_block($preamble)
+    $ctx->inject_if_block($ctx->scope_injector_call() . $preamble)
         || croak "Expecting an opening brace";
 }
 
