@@ -53,8 +53,25 @@ testclass AddsCarp +uses Carp, -Warn {
 
 testclass TestClass exercises Test::Class::Sugar {
     sub test_requirement : Test {
-        my $self = shift;
-        ok $self->class_under_test->isa( 'UNIVERSAL' );
+        my $test = shift;
+        ok $test->class_under_test->isa( 'UNIVERSAL' );
+    }
+}
+
+{
+    package Foo;
+    sub foo {'foo'}
+}
+
+testclass exercises Foo {
+    sub test_class_name : Test {
+        my $test = shift;
+        is ref($test) => 'Test::Foo';
+    }
+
+    sub test_class_under_test : Test {
+        my $test = shift;
+        is $test->class_under_test => 'Foo';
     }
 }
 

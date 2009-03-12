@@ -41,11 +41,20 @@ sub _parse_testclass {
     my $classname;
 
     $ctx->skip_declarator;
-    $classname = $ctx->strip_name || croak "Expected a class name";
-
-    $preamble .= "package ${classname}; use strict; use warnings;";
+    $ctx->skipspace;
+    unless ($ctx->looking_at(qr/^(?:\+?uses|ex(?:tends|ercises)|extends)/, 9)) {
+        $classname = $ctx->strip_name;
+    }
 
     my $options = $ctx->strip_options;
+
+    unless ($classname) {
+        $options->{class_under_test} 
+          // croak "Must specify a testclass name or a class to exercise";
+        $classname = "Test::" . $options->{class_under_test} ;
+    }
+
+    $preamble .= "package ${classname}; use strict; use warnings;";
 
     my $baseclasses = $options->{base} || "Test::Class";
     $options->{helpers} //= ['Test::Most'];
