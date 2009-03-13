@@ -83,11 +83,11 @@ testclass WithInnerKeywords {
 
     test 'named with a string' {
         is $test->current_method, 'named_with_a_string';
-    }
+    };
 
-    # test named with multiple symbols {
-    #     is $test->current_method, 'named_with_multiple_symbols';
-    # }
+    test named with multiple symbols {
+        is $test->current_method, 'test_named_with_multiple_symbols';
+    }
 }
 
 #say WithInnerKeywords::simpletest();

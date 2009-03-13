@@ -56,7 +56,7 @@ sub strip_names {
     my $self = shift;
 
     $self->skipspace;
-    my $name = '';
+    my $name = 'test_';
 
     while (! $self->looking_at(qr/^(?:\{|=>)/,2) ) {
         $name .= ($self->strip_name . '_')
@@ -72,7 +72,7 @@ sub strip_test_name {
     $self->skipspace;
 
     my $name = $self->strip_test_desc_string
-    || $self->strip_name
+    || $self->strip_names
     || return;
 
     $name =~ s/^\s+|\s$//g;
