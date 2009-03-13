@@ -43,13 +43,14 @@ sub _parse_test {
 
     my $name = $ctx->strip_test_name
         || croak "Can't make a test without a name";
+    my $plan = $ctx->strip_plan;
 
     $preamble .= q{my $test = shift;};
 
-    #$preamble = $ctx->scope_injector_call().$preamble;
+    $preamble = $ctx->scope_injector_call().$preamble;
     $ctx->skipspace;
 
-    $ctx->get_curstash_name->add_test($name, test => 1);
+    $ctx->get_curstash_name->add_test($name, $ctx->declarator, $plan);
 
     $name = join('::', $ctx->get_curstash_name, $name)
         unless ($name =~ /::/);

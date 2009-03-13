@@ -64,6 +64,7 @@ sub strip_names {
         $self->skipspace;
     }
     chop($name) || return;
+    $name =~ s/test_(?=.*test)//;
     return $name;
 }
 
@@ -85,10 +86,28 @@ sub strip_test_name {
 
 sub looking_at {
     my($self, $expected, $len) = @_;
-    $len //= ref($expected) ? 1 : length($expected);
+    $len //= ref($expected) ? undef : length($expected);
 
-    my $linestr = $self->get_linestr;
-    substr($linestr, $self->offset, $len) ~~ $expected;
+    $expected = quotemeta($expected) unless ref($expected);
+
+    my $buffer = $self->get_buffer;
+    while ($len && $len > length($buffer)) {
+        $buffer = $self->extend_buffer;
+    }
+
+    $buffer =~ /^$expected/;
+}
+
+sub strip_plan {
+    my $self = shift;
+    $self->skipspace;
+    return unless $self->strip_string('=>');
+
+    $self->skipspace;
+
+    my($plan) = $self->looking_at(qr/(\+?\d+|no_plan)/);
+    $self->strip_string($plan);
+    return $plan;
 }
 
 sub strip_options {
@@ -179,5 +198,39 @@ sub strip_string {
     $self->set_linestr($linestr);
     return 1;
 }
+
+sub alter_buffer {
+    my($self, $sub) = @_;
+
+    local $_ = $self->get_buffer;
+    $sub->();
+    $self->set_buffer($_);
+}
+
+sub get_buffer {
+    my $self = shift;
+
+    substr($self->get_linestr, $self->offset)
+}
+
+sub set_buffer {
+    my($self, $new) = @_;
+
+    my $linestr = $self->get_linestr;
+    substr($linestr, $self->offset) = $new;
+    $self->set_linestr($linestr);
+    return $new;
+}
+
+sub extend_buffer {
+    my $self = shift;
+    my $buffer = $self->get_buffer;
+    $self->set_buffer('');
+    $self->skipspace;
+    $buffer .= $self->get_buffer;
+    $self->set_buffer($buffer);
+}
+
+
 
 1;

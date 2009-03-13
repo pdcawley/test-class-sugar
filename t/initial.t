@@ -78,15 +78,21 @@ testclass exercises Foo {
 
 testclass WithInnerKeywords {
     test simpletest {
-        isa_ok $test, 'WithInnerKeywords';
-    };
+        is $test->current_method, 'simpletest';
+    }
 
     test 'named with a string' {
         is $test->current_method, 'named_with_a_string';
-    };
+    }
 
     test named with multiple symbols {
         is $test->current_method, 'test_named_with_multiple_symbols';
+    }
+
+    test with multiple assertions => 3 {
+        ok 1;
+        ok 2;
+        ok 3;
     }
 }
 
