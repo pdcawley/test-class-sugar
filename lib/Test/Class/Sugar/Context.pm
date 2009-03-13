@@ -192,10 +192,8 @@ sub strip_string {
     my($self, $expected) = @_;
 
     return unless $self->looking_at($expected);
-    my $linestr = $self->get_linestr;
 
-    substr($linestr, $self->offset, length($expected)) = '';
-    $self->set_linestr($linestr);
+    $self->alter_buffer(sub { s/^\Q$expected\E// });
     return 1;
 }
 
