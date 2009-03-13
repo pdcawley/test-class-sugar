@@ -1,0 +1,57 @@
+h1. Test::Class::Sugar
+
+h2. Synopsis
+
+@Test::Class::Sugar@ is a declarative wrapper around Adrian Howard's
+"@Test::Class@":http://search.cpan.org/dist/Test-Class xUnit style Perl
+testing library.
+
+The idea is that, instead of writing:
+
+<pre><code>
+package Test::Something;
+use base qw/Test::Class/;
+
+use Test::Most;
+
+sub subject {
+  'Something'
+}
+
+sub test_something : Test(3) {
+  my $test = shift;
+  is $test->current_method, 'test_something';
+  is $test->subject, 'Something';
+  isa_ok $test, 'Test::Something';
+}
+</code></pre>
+
+You will be able to write:
+
+<pre><code>
+use Test::Class::Sugar;
+
+testclass exercises Something {
+  test something => 3 {
+    is $test->current_method, 'test_something';
+    is $test->subject, 'Something';
+    isa_ok $test, 'Test::Something';
+  }
+}
+</code></pre>
+
+h2. Prerequisites
+
+There will be a proper list of library prerequisites in Makefile.PL by the
+time this gets properly released, but at the time of writing there are a
+couple of requirements that can't be fulfilled from CPAN.
+
+First, you'll need a bleeding edge
+"Devel::Declare":http://github.com/rafl/devel-declare from Github, and you'll
+also need to install the Test-Class.patch patch to your Test::Class
+installation (at least until Adrian applies the patch and cuts a new
+Test::Class). 
+
+h2. Caution
+
+The 'after' code fragment above doesn't quite work yet, but will do soon.
