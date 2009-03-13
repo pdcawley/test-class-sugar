@@ -33,9 +33,9 @@ sub strip_test_desc_string {
     my $self = shift;
     $self->skipspace;
 
-    my $linestr = $self->get_linestr();
     return unless $self->looking_at(q{'});
 
+    my $linestr = $self->get_linestr();
     my $length = Devel::Declare::toke_scan_str($self->offset);
     my $desc = Devel::Declare::get_lex_stuff();
     Devel::Declare::clear_lex_stuff();
@@ -64,11 +64,13 @@ sub strip_names {
     $self->skipspace;
     my $declarator = $self->declarator;
     my $name = $declarator;
-
-    while (! $self->looking_at(qr/[{:]/,1) ) {
-        $name .= ('_' . $self->strip_name)
+    warn $self->get_buffer;
+    unless($self->looking_at('>>')) {
+        while (! $self->looking_at(qr/(?:{|>>)/,1) ) {
+            $name .= ('_' . $self->strip_name)
             // croak "Expecting a simple name; try quoting it";
-        $self->skipspace;
+            $self->skipspace;
+        }
     }
     return if $name eq 'test';
     $name =~ s/^(\w+)_(?=.*\1)//;
@@ -83,6 +85,7 @@ sub strip_test_name {
     my $self = shift;
     $self->skipspace;
 
+    say $self->get_buffer;
     my $name = $self->strip_test_desc_string
     || $self->strip_names
     || return;
@@ -107,7 +110,7 @@ sub looking_at {
 sub strip_plan {
     my $self = shift;
     $self->skipspace;
-    return unless $self->strip_string(':');
+    return unless $self->strip_string('>>');
 
     $self->skipspace;
 
