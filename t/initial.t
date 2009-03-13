@@ -89,15 +89,24 @@ testclass WithInnerKeywords {
         is $test->current_method, 'test_named_with_multiple_symbols';
     }
 
-    test with multiple assertions => 3 {
+    test with multiple assertions : 3 {
         ok 1;
         ok 2;
         ok 3;
     }
 }
 
-#say WithInnerKeywords::simpletest();
+testclass LifeCycle {
+    my $log = '';
 
-say WithInnerKeyWords->can('simpletest');
+    startup       { $log .= 'startup ' }
+    setup         { $log .= 'setup '}
+    test one : 0 { $log .= 'test ' }
+    test two : 0 { $log .= 'test ' }
+    teardown      { $log .= 'teardown '}
+    shutdown foo : 1 {
+        is $log, 'startup setup test teardown setup test teardown ',
+    }
+}
 
 Test::Class->runtests;

@@ -9,7 +9,16 @@ use Test::Class::Sugar::Context;
 use Sub::Name;
 use Carp qw/croak/;
 
-#use namespace::clean;
+use namespace::clean;
+
+my %PARSER_FOR = (
+    testclass => '_parse_testclass',
+    startup   => '_parse_inner_keyword',
+    setup     => '_parse_inner_keyword',
+    test      => '_parse_inner_keyword',
+    teardown  => '_parse_inner_keyword',
+    shutdown  => '_parse_inner_keyword',
+);
 
 use Sub::Exporter -setup => {
     exports => [qw/testclass startup setup test teardown shutdown/],
@@ -19,7 +28,7 @@ use Sub::Exporter -setup => {
         my ($args, $to_export) = @_;
         my $pack = $args->{into};
         foreach my $name (@$to_export) {
-            if (my $parser = __PACKAGE__->can("_parse_${name}")) {
+            if (my $parser = __PACKAGE__->can($PARSER_FOR{$name}//'-NOTHING-')) {
                 Devel::Declare->setup_for(
                     $pack,
                     { $name => { const => sub { $parser->($pack, @_) } } },
@@ -30,7 +39,7 @@ use Sub::Exporter -setup => {
     }
 };
 
-sub _parse_test {
+sub _parse_inner_keyword {
     my $pack = shift;
 
     local $Carp::Internal{'Devel::Declare'} = 1;
@@ -58,10 +67,9 @@ sub _parse_test {
     $ctx->inject_if_block($preamble)
       // croak "Expected a block";
 
-    say $ctx->get_linestr;
+    $ctx->get_buffer;
     $ctx->shadow(
         sub (&) {
-            say "Adding $name";
             my $code = shift;
             no strict 'refs';
             *{$name} = subname $name => $code

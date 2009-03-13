@@ -2,6 +2,7 @@ package Test::Class::Sugar::Context;
 use Modern::Perl;
 use base qw/Devel::Declare::Context::Simple/;
 
+
 use Carp qw/croak/;
 
 sub strip_docstring {
@@ -49,6 +50,11 @@ sub strip_test_desc_string {
     substr($linestr, $self->offset, $length) = '';
     $self->set_linestr($linestr);
 
+    $desc =~ s/^\s+|\s$//g;
+    $desc =~ s/\s+/_/g;
+    $desc =~ s/\W+//g;
+    $desc =~ s/^(\d)/_$1/;
+
     return $desc
 }
 
@@ -56,15 +62,20 @@ sub strip_names {
     my $self = shift;
 
     $self->skipspace;
-    my $name = 'test_';
+    my $declarator = $self->declarator;
+    my $name = $declarator;
 
-    while (! $self->looking_at(qr/^(?:\{|=>)/,2) ) {
-        $name .= ($self->strip_name . '_')
+    while (! $self->looking_at(qr/[{:]/,1) ) {
+        $name .= ('_' . $self->strip_name)
             // croak "Expecting a simple name; try quoting it";
         $self->skipspace;
     }
-    chop($name) || return;
-    $name =~ s/test_(?=.*test)//;
+    return if $name eq 'test';
+    $name =~ s/^(\w+)_(?=.*\1)//;
+    if ($name eq $declarator) {
+        $name .= $self->get_curstash_name;
+        $name =~ s/::/_/g;
+    }
     return $name;
 }
 
@@ -76,11 +87,6 @@ sub strip_test_name {
     || $self->strip_names
     || return;
 
-    $name =~ s/^\s+|\s$//g;
-    $name =~ s/\s+/_/g;
-    $name =~ s/\W+//g;
-    $name =~ s/^(\d)/_$1/;
-    say $name;
     return lc($name)
 }
 
@@ -101,7 +107,7 @@ sub looking_at {
 sub strip_plan {
     my $self = shift;
     $self->skipspace;
-    return unless $self->strip_string('=>');
+    return unless $self->strip_string(':');
 
     $self->skipspace;
 
@@ -131,7 +137,6 @@ sub strip_options {
 sub strip_class_under_test {
     my($self, $opts) = @_;
     return unless $self->strip_string('exercises');
-    Carp::carp("stripped... ", substr($self->get_linestr, $self->offset));
 
     croak "testclass can only exercise one class" if $opts->{class_under_test};
 
@@ -207,8 +212,8 @@ sub alter_buffer {
 
 sub get_buffer {
     my $self = shift;
-
-    substr($self->get_linestr, $self->offset)
+    my $linestr = $self->get_linestr;
+    substr($linestr, $self->offset)
 }
 
 sub set_buffer {
