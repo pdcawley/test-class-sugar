@@ -141,10 +141,6 @@ __END__
 
 Test::Class::Sugar - Helper syntax for writing Test::Class tests
 
-=head1 VERSION
-
-This document describes the pre-release version of Test::Class::Sugar
-
 =head1 SYNOPSIS
 
     use Test::Class::Sugar;
