@@ -59,7 +59,7 @@ sub _parse_inner_keyword {
     $preamble = $ctx->scope_injector_call().$preamble;
     $ctx->skipspace;
 
-    $ctx->get_curstash_name->add_test($name, $ctx->declarator, $plan);
+    $ctx->get_curstash_name->add_testinfo($name, $ctx->declarator, $plan);
 
     $name = join('::', $ctx->get_curstash_name, $name)
         unless ($name =~ /::/);
