@@ -64,7 +64,7 @@ sub strip_names {
     $self->skipspace;
     my $declarator = $self->declarator;
     my $name = $declarator;
-    warn $self->get_buffer;
+
     unless($self->looking_at('>>')) {
         while (! $self->looking_at(qr/(?:{|>>)/,1) ) {
             $name .= ('_' . $self->strip_name)
@@ -84,7 +84,6 @@ sub strip_test_name {
     my $self = shift;
     $self->skipspace;
 
-    say $self->get_buffer;
     my $name = $self->strip_test_desc_string
     || $self->strip_names
     || return;
