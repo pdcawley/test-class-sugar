@@ -78,7 +78,7 @@ testclass exercises Foo {
 
 testclass WithInnerKeywords {
     test simpletest {
-        is $test->current_method, 'simpletest';
+        is $test->current_method, 'test_simpletest';
     }
 
     test 'named with a string' {

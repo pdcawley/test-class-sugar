@@ -73,7 +73,6 @@ sub strip_names {
         }
     }
     return if $name eq 'test';
-    $name =~ s/^(\w+)_(?=.*\1)//;
     if ($name eq $declarator) {
         $name .= $self->get_curstash_name;
         $name =~ s/::/_/g;
