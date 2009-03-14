@@ -113,7 +113,7 @@ sub _parse_testclass {
     }
 
     if (my $testedclass = $options->{class_under_test}) {
-        $preamble .= "require ${testedclass} unless \%${testedclass}::; sub class_under_test { \"${testedclass}\" };"
+        $preamble .= "require ${testedclass} unless \%${testedclass}::; sub subject { \"${testedclass}\" };"
     }
 
     if (my $docstr = $ctx->strip_docstring()) {
