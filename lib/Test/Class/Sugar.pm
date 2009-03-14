@@ -88,7 +88,7 @@ sub _parse_testclass {
 
     $ctx->skip_declarator;
     $ctx->skipspace;
-    unless ($ctx->looking_at(qr/^(?:\+?uses|ex(?:tends|ercises)|extends)/, 9)) {
+    unless ($ctx->looking_at(qr/^(?:\+?uses|ex(?:tends|ercises))/, 9)) {
         $classname = $ctx->strip_name;
     }
 
