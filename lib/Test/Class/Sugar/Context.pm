@@ -237,6 +237,106 @@ sub extend_buffer {
     $self->set_buffer($buffer);
 }
 
-
-
 1;
+__END__
+
+=head1 NAME
+
+Test::Class::Sugar::Context - Pay no attention to the class behind the curtain
+
+=head1 DESCRIPTION
+
+Test::Class::Sugar::Context does most of the heavy lifting for
+Test::Class::Sugar's parser. No user serviceable parts inside and all that.
+
+However, if you're writing your own module using L<Devel::Declare> and, like I
+was, you're looking at other D::D client modules to lift ideas from, then you
+probably want to take a look at the following selected methods:
+
+=over
+
+=item B<looking_at($expected, $len)>
+
+Look at the unparsed buffer and returns true if it
+matches C<$expected>. Given a C<$len> argument, looking_at first makes sure
+that there are at least $len characters in the buffer.
+
+=item B<get_buffer>, B<set_buffer>
+
+Getters and setters. Like B<get_linestr> and B<set_linestr> but, rather than
+return the whole C<linestr>, they only return the unparsed bit of it. If you
+too are sick of writing C<< substr($ctx->get_linestr, $ctx->offset) >>, then
+these are the methods for you.
+
+=item B<alter_buffer(CODE)>
+
+It works like this:
+
+    $ctx->alter_buffer(sub { s/bibble// }
+
+Obvious no?
+
+B<alter_buffer> temporarily copies the buffer into C<$_>, then calls the
+coderef you pass in, then writes the new value of C<$_> back into the
+buffer. It's not quite the same as having a fully mutable buffer, but it'll
+just have to serve.
+
+=item B<extend_buffer>
+
+Grabs the next linestr and appends it to the buffer.
+
+=back
+
+=head1 DIAGNOSTICS
+
+Only kidding. Right now the diagnostics suck harder than a thing that sucks
+very hard indeed. One of these days I'll work out how to have a parser fail
+gracefully with meaningful diagnostics, but today is not that day.
+
+=head1 BUGS AND LIMITATIONS
+
+There's bound to be some. Patches welcome.
+
+Please report any bugs or feature requests to me. It's unlikely you'll get any
+response if you use L<http://rt.cpan.org> though. Your best course of action
+is to fork the project L<http://www.github.com/pdcawley/test-class-sugar>,
+write at least one failing test (Write something in C<testclass> form that
+should work, but doesn't. If you can arrange for it to fail gracefully, then
+please do, but if all you do is write something that blows up spectacularly,
+that's good too. Failing/exploding tests are like manna to a maintenance
+programmer.
+
+=head1 AUTHOR
+
+Piers Cawley C<< <pdcawley@bofh.org.uk> >>
+
+=head1 LICENCE AND COPYRIGHT
+
+Copyright (c) 2009, Piers Cawley C<< <pdcawley@bofh.org.uk> >>. All rights reserved.
+
+This module is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself. See L<perlartistic>.
+
+
+=head1 DISCLAIMER OF WARRANTY
+
+BECAUSE THIS SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE SOFTWARE "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER
+EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE
+ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE SOFTWARE IS WITH
+YOU. SHOULD THE SOFTWARE PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL
+NECESSARY SERVICING, REPAIR, OR CORRECTION.
+
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE SOFTWARE AS PERMITTED BY THE ABOVE LICENCE, BE
+LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL,
+OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR INABILITY TO USE
+THE SOFTWARE (INCLUDING BUT NOT LIMITED TO LOSS OF DATA OR DATA BEING
+RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD PARTIES OR A
+FAILURE OF THE SOFTWARE TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
+SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
