@@ -48,6 +48,16 @@ sub _test_generator {
     );
 }
 
+sub _testclass_generator {
+    my($ctx, $classname, $options) = @_;
+    my $ret = Test::Class::Sugar::CodeGenerator->new(
+        context   => $ctx,
+        options   => $options,
+    );
+    $ret->classname($classname) if $classname;
+    return $ret;
+}
+
 
 sub _parse_inner_keyword {
     my $pack = shift;
@@ -68,26 +78,13 @@ sub _parse_inner_keyword {
     return;
 }
 
-sub _parse_testclass {
-    my $pack = shift;
-
-    local $Carp::Internal{'Devel::Declare'} = 1;
-
-    my $ctx = Test::Class::Sugar::Context->new->init(@_);
+sub _testclass_preamble {
+    my($ctx, $classname, $options) = @_;
     my $preamble = '';
-    my $classname;
-
-    $ctx->skip_declarator;
-    $ctx->skipspace;
-    unless ($ctx->looking_at(qr/^(?:\+?uses|ex(?:tends|ercises))/, 9)) {
-        $classname = $ctx->strip_name;
-    }
-
-    my $options = $ctx->strip_options;
 
     unless ($classname) {
         $options->{class_under_test}
-          // croak "Must specify a testclass name or a class to exercise";
+        // croak "Must specify a testclass name or a class to exercise";
         $classname = "Test::" . $options->{class_under_test} ;
     }
 
@@ -106,11 +103,20 @@ sub _parse_testclass {
     if (my $testedclass = $options->{class_under_test}) {
         $preamble .= "require ${testedclass} unless \%${testedclass}::; sub subject { \"${testedclass}\" };"
     }
+     $ctx->scope_injector_call() . $preamble;
+}
 
-    $ctx->skipspace;
+sub _parse_testclass {
+    my $pack = shift;
 
-    $ctx->inject_if_block($ctx->scope_injector_call() . $preamble)
-        || croak "Expecting an opening brace";
+    local $Carp::Internal{'Devel::Declare'} = 1;
+
+    my $ctx = Test::Class::Sugar::Context->new->init(@_);
+
+    $ctx->skip_declarator;
+    my $classname = $ctx->strip_testclass_name;
+    _testclass_generator($ctx, $classname, $ctx->strip_options)
+        ->install_testclass;
 }
 
 sub testclass (&) {shift->()}

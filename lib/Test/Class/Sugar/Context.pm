@@ -93,6 +93,14 @@ sub strip_plan {
     return $plan;
 }
 
+sub strip_testclass_name {
+    my $self = shift;
+    $self->skipspace;
+
+    ! $self->looking_at(qr/^(?:\+?uses|ex(?:tends|ercises))/, 9)
+    && $self->strip_name;
+}
+
 sub strip_options {
     my $self = shift;
     $self->skipspace;
