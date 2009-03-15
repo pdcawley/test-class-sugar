@@ -2,13 +2,13 @@ use Modern::Perl;
 use Test::Class::Sugar;
 
 testclass Some::Class::Name {
-    sub simple_test : Test {
+    test simple_test {
         ok 1;
     }
 }
 
-testclass Some::Other::Class::Name {
-    sub simple_test : Test {
+testclass OldStyleTestMethods {
+    sub test_this_still_works : Test {
         ok 1;
     }
 }
@@ -16,45 +16,44 @@ testclass Some::Other::Class::Name {
 testclass DocumentedClass
 "This is a \"DOCSTRING\" a la Emacs"
 {
-    sub simple_test : Test {
+    test simple_test {
         ok 1;
     }
 }
 
 testclass ChildClass extends Some::Class::Name {
-    sub extra_test : Test {
+    test extra_test {
         ok 2, 'Child class test';
     }
 }
 
-testclass Child2 extends Some::Class::Name, Some::Other::Class::Name {
-    sub child_test : Test {
+testclass Child2 extends Some::Class::Name, OldStyleTestMethods {
+    test child_test {
         ok 3;
     }
 }
 
 testclass MultipleHelpers uses Test::More, Test::Exception {
-    sub multi_test : Test(2) {
+    test multi_test >> 2 {
         ok 4;
         lives_ok { 5 };
     }
 }
 
 testclass ShortcutHelper uses -Exception {
-    sub exception_test : Test {
+    test exception_test {
         lives_ok { 1 }
     }
 }
 
 testclass AddsCarp +uses Carp, -Warn {
-    sub warning_test : Test {
+    test warning_test {
         warning_like { carp "foo" } qr/foo/, "expects a warning";
     }
 }
 
 testclass TestClass exercises Test::Class::Sugar {
-    sub test_requirement : Test {
-        my $test = shift;
+    test test_requirement {
         ok $test->subject->isa( 'UNIVERSAL' );
     }
 }
@@ -65,13 +64,11 @@ BEGIN {
 }
 
 testclass exercises Foo {
-    sub test_class_name : Test {
-        my $test = shift;
+    test test_class_name {
         is ref($test) => 'Test::Foo';
     }
 
-    sub test_subject : Test {
-        my $test = shift;
+    test test_subject {
         is $test->subject => 'Foo';
     }
 }
