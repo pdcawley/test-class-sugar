@@ -119,7 +119,7 @@ sub _parse_testclass {
         ->install_testclass;
 }
 
-sub testclass (&) {shift->()}
+sub testclass (&) {}
 
 sub startup (&) {}
 sub setup (&) {}

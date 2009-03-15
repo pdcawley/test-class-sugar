@@ -67,28 +67,38 @@ class Test::Class::Sugar::CodeGenerator {
         );
     }
 
+    method helpers {
+        @{$self->options->{helpers} //= [qw{Test::Most}]};
+    }
+
+    method use_helpers_string {
+        join '', map {"use $_;"} $self->helpers;
+    }
+
+    method subject_method_string {
+        my $subject = $self->options->{class_under_test};
+        return '' unless $subject;
+
+        "require ${subject} unless \%${subject}::; sub subject { \"${subject}\" };"
+    }
+
+    method baseclasses {
+        $self->options->{base} || 'Test::Class';
+    }
+
+    method use_base_string {
+        "use base qw/" . $self->baseclasses . '/;';
+    }
+
     method testclass_preamble {
-        my $preamble = '';
-        my $ctx = $self->context;
         my $classname = $self->classname;
-        my $options = $self->options;
 
-        $preamble .= "package ${classname}; use strict; use warnings;";
-        $preamble .= "use Test::Class::Sugar qw/-inner/;";
-
-        my $baseclasses = $options->{base} || "Test::Class";
-        $options->{helpers} //= ['Test::Most'];
-
-        $preamble .= "use base qw/${baseclasses}/;";
-
-        foreach my $helper (@{$options->{helpers}}) {
-            $preamble .= "use ${helper};";
-        }
-
-        if (my $testedclass = $options->{class_under_test}) {
-            $preamble .= "require ${testedclass} unless \%${testedclass}::; sub subject { \"${testedclass}\" };"
-        }
-        $ctx->scope_injector_call() . $preamble;
+        $self->context->scope_injector_call
+        . "package " . $self->classname . "; use strict; use warnings;"
+        . "use Test::Class::Sugar qw/-inner/;"
+        . $self->use_base_string
+        . $self->use_helpers_string
+        . $self->subject_method_string
     }
 
     method inject_testclass {
@@ -98,7 +108,7 @@ class Test::Class::Sugar::CodeGenerator {
     }
 
     method shadow_testclass {
-#        $self->context->shadow(sub (&) { shift->() });
+        $self->context->shadow(sub (&) { shift->() });
     }
 
     method install_testclass {
