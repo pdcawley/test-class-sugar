@@ -338,6 +338,21 @@ Patches welcome.
 
 =head1 BUGS AND LIMITATIONS
 
+=head2 Known bugs
+
+=over
+
+=item Screwy line numbers
+
+Test::Class::Sugar can screw up the accord between the line perl thinks some
+code is on and the line the code is I<actually> on. This makes debugging test
+classes harder than it should be. Our error reporting is bad enough already
+without making things worse.
+
+=back
+
+=head2 Unknown bugs
+
 There's bound to be some.
 
 =head2 Patches welcome.
