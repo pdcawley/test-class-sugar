@@ -116,10 +116,6 @@ sub _parse_testclass {
         $preamble .= "require ${testedclass} unless \%${testedclass}::; sub subject { \"${testedclass}\" };"
     }
 
-    if (my $docstr = $ctx->strip_docstring()) {
-        $preamble .= qq{sub _print_DOCSTRING : Test(startup) { diag ref(\$_[0]),"\n", q{${docstr}} };};
-    }
-
     $ctx->skipspace;
 
     $ctx->inject_if_block($ctx->scope_injector_call() . $preamble)

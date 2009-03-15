@@ -13,14 +13,6 @@ testclass OldStyleTestMethods {
     }
 }
 
-testclass DocumentedClass
-"This is a \"DOCSTRING\" a la Emacs"
-{
-    test simple_test {
-        ok 1;
-    }
-}
-
 testclass ChildClass extends Some::Class::Name {
     test extra_test {
         ok 2, 'Child class test';

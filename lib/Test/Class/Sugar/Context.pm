@@ -5,30 +5,6 @@ use base qw/Devel::Declare::Context::Simple/;
 
 use Carp qw/croak/;
 
-sub strip_docstring {
-    my $self = shift;
-    $self->skipspace;
-
-    my $linestr = $self->get_linestr();
-    return unless $self->looking_at('"');
-
-    my $length = Devel::Declare::toke_scan_str($self->offset);
-    my $docstring = Devel::Declare::get_lex_stuff();
-    Devel::Declare::clear_lex_stuff();
-    if ( $length < 0 ) {
-        $linestr .= $self->get_linestr();
-        $length = rindex($linestr, q{"}) - $self->offset + 1;
-    }
-    else {
-        $linestr = $self->get_linestr();
-    }
-
-    substr($linestr, $self->offset, $length) = '';
-    $self->set_linestr($linestr);
-
-    return $docstring;
-}
-
 sub strip_test_desc_string {
     my $self = shift;
     $self->skipspace;
