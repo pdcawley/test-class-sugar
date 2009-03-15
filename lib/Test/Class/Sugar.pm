@@ -6,7 +6,7 @@ use Devel::Declare ();
 use Devel::Declare::Context::Simple;
 use B::Hooks::EndOfScope;
 use Test::Class::Sugar::Context;
-use Sub::Name;
+use Test::Class::Sugar::CodeGenerator;
 use Carp qw/croak/;
 
 use namespace::clean;
@@ -39,43 +39,15 @@ use Sub::Exporter -setup => {
     }
 };
 
-sub _build_test_preamble {
+sub _test_generator {
     my($ctx, $name, $plan) = @_;
-
-    $ctx->scope_injector_call().q{my $test = shift;};
-}
-
-sub _shadow_test {
-    my($ctx, $name, $plan) = @_;
-
-    my $classname = $ctx->get_curstash_name;
-
-    my $longname = ($name !~ /::/)
-      ? join('::', $classname, $name)
-      : $name;
-
-    warn $longname;
-
-    $ctx->shadow(
-        sub (&) {
-            my $code = shift;
-            no strict 'refs';
-            *{$longname} = subname $longname => $code;
-            $classname->add_testinfo($name,
-                                     $ctx->declarator,
-                                     $plan);
-        }
+    Test::Class::Sugar::CodeGenerator->new(
+        context => $ctx,
+        name    => $name,
+        plan    => $plan,
     );
 }
 
-sub _inject_test {
-    my($ctx, $name, $plan) = @_;
-
-    $ctx->skipspace;
-    $ctx->inject_if_block(_build_test_preamble($ctx, $name, $plan))
-      // croak "Expected a block";
-
-}
 
 sub _parse_inner_keyword {
     my $pack = shift;
@@ -91,8 +63,7 @@ sub _parse_inner_keyword {
         || croak "Can't make a test without a name";
     my $plan = $ctx->strip_plan;
 
-    _inject_test($ctx, $name, $plan);
-    _shadow_test($ctx, $name, $plan);
+    _test_generator($ctx, $name, $plan)->install_test();
 
     return;
 }

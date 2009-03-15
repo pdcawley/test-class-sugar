@@ -15,6 +15,7 @@ requires "Test::Class" => '0.31';
 requires "Sub::Name";
 requires "Devel::Declare" => '0.003004';
 requires "B::Hooks::EndOfScope";
+requires "MooseX::Declare";
 
 test_requires 'Test::Most';
 
