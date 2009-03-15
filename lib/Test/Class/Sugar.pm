@@ -39,6 +39,44 @@ use Sub::Exporter -setup => {
     }
 };
 
+sub _build_test_preamble {
+    my($ctx, $name, $plan) = @_;
+
+    $ctx->scope_injector_call().q{my $test = shift;};
+}
+
+sub _shadow_test {
+    my($ctx, $name, $plan) = @_;
+
+    my $classname = $ctx->get_curstash_name;
+
+    my $longname = ($name !~ /::/)
+      ? join('::', $classname, $name)
+      : $name;
+
+    warn $longname;
+
+    $ctx->shadow(
+        sub (&) {
+            my $code = shift;
+            no strict 'refs';
+            *{$longname} = subname $longname => $code;
+            $classname->add_testinfo($name,
+                                     $ctx->declarator,
+                                     $plan);
+        }
+    );
+}
+
+sub _inject_test {
+    my($ctx, $name, $plan) = @_;
+
+    $ctx->skipspace;
+    $ctx->inject_if_block(_build_test_preamble($ctx, $name, $plan))
+      // croak "Expected a block";
+
+}
+
 sub _parse_inner_keyword {
     my $pack = shift;
 
@@ -46,7 +84,6 @@ sub _parse_inner_keyword {
 
     my $ctx = Test::Class::Sugar::Context->new->init(@_);
     my $preamble = '';
-    my $classname;
 
     $ctx->skip_declarator;
 
@@ -54,26 +91,9 @@ sub _parse_inner_keyword {
         || croak "Can't make a test without a name";
     my $plan = $ctx->strip_plan;
 
-    $preamble .= q{my $test = shift;};
+    _inject_test($ctx, $name, $plan);
+    _shadow_test($ctx, $name, $plan);
 
-    $preamble = $ctx->scope_injector_call().$preamble;
-    $ctx->skipspace;
-
-    $ctx->get_curstash_name->add_testinfo($name, $ctx->declarator, $plan);
-
-    $name = join('::', $ctx->get_curstash_name, $name)
-        unless ($name =~ /::/);
-
-    $ctx->inject_if_block($preamble)
-      // croak "Expected a block";
-
-    $ctx->get_buffer;
-    $ctx->shadow(
-        sub (&) {
-            my $code = shift;
-            no strict 'refs';
-            *{$name} = subname $name => $code
-        });
     return;
 }
 
