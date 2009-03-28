@@ -11,7 +11,7 @@ perl_version '5.010000';
 recommends 'Test::Most';
 
 requires "Modern::Perl";
-requires "Test::Class" => '0.31';
+requires "Test::Class" => '0.32_1';
 requires "Sub::Name";
 requires "Devel::Declare" => '0.003004';
 requires "B::Hooks::EndOfScope";

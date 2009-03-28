@@ -46,8 +46,5 @@ There will be a proper list of library prerequisites in Makefile.PL by the
 time this gets properly released, but at the time of writing there are a
 couple of requirements that can't be fulfilled from CPAN.
 
-First, you'll need a bleeding edge
-"Devel::Declare":http://github.com/rafl/devel-declare from Github, and you'll
-also need to install the Test-Class.patch patch to your Test::Class
-installation (at least until Adrian applies the patch and cuts a new
-Test::Class). 
+You'll need a bleeding edge
+"Devel::Declare":http://github.com/rafl/devel-declare from Github
