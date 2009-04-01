@@ -11,6 +11,8 @@ use Carp qw/croak/;
 
 use namespace::clean;
 
+our $VERSION = '0.0100';
+
 my %PARSER_FOR = (
     testclass => '_parse_testclass',
     startup   => '_parse_inner_keyword',
