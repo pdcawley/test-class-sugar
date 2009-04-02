@@ -175,7 +175,7 @@ you. So, when you write
         ...
     }
 
-What Perl sees, after Test::Class::Sugar has done it's work is, roughly:
+What Perl sees, after Test::Class::Sugar has done its work, is roughly:
 
     {
         package Test::Person;
@@ -193,8 +193,8 @@ them will be though.
 
 =head2 Why you shouldn't use Test::Class::Sugar
 
-Test::Class::Sugar is very new, pretty untested and is indadvertently hostile
-to you if you confuse it's parser. Don't use it if you want to live.
+Test::Class::Sugar is very new, pretty untested and is inadvertently hostile
+to you if you confuse its parser. Don't use it if you want to live.
 
 =head2 Why you should use Test::Class::Sugar
 
@@ -303,7 +303,7 @@ Gets translated to:
     sub test_with_no_plan : Test(no_plan) {...}
     sub a_complicated_description_with_symbols_in_it : Test {...}
 
-See L<Test::Class/Test) for details of C<PLAN>'s semantics.
+See L<Test::Class/Test> for details of C<PLAN>'s semantics.
 
 =item B<startup>, B<setup>, B<teardown>, C<shutdown>
 
