@@ -38,12 +38,6 @@ testclass ShortcutHelper uses -Exception {
     }
 }
 
-testclass AddsCarp +uses Carp, -Warn {
-    test warning_test {
-        warning_like { carp "foo" } qr/foo/, "expects a warning";
-    }
-}
-
 testclass TestClass exercises Test::Class::Sugar {
     test test_requirement {
         ok $test->subject->isa( 'UNIVERSAL' );

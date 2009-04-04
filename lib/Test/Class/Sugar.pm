@@ -232,7 +232,7 @@ they do, and what they expect.
     testclass NAME?
       ( exercises CLASS
       | extends CLASS (, CLASS)*
-      | +?uses HELPER (, HELPER)*
+      | uses HELPER (, HELPER)*
       )*
 
 Where B<NAME> is is an optional test class name - the sort of thing you're
@@ -259,7 +259,7 @@ inheritance. Friends don't let friends do multiple inheritance, but
 Test::Class::Sugar's not a friend, it's a robot servant which will provide you
 with more than enough rope.
 
-=item +?uses HELPER (, HELPER)*
+=item uses HELPER (, HELPER)*
 
 Ah, the glory that is the C<uses> clause. If you don't provide a uses clause,
 Test::Class::Sugar will assume that you want to use L<Test::Most> as your
@@ -272,14 +272,6 @@ Hang on, C<-More>, what's that about? It's a simple shortcut. Instead of
 making you write C<uses Test::This, Test::That, Test::TheOther>, you can write
 C<uses -This, -That, -TheOther> and we'll expand the C<-> into C<Test::> and
 do the right thing.
-
-If, like me, you like Test::Most, but you want to use some other helper
-modules, then you'd do:
-
-    testclass AnotherExample +uses -MockObject, Moose {...}
-
-C<+uses> extends the list of helper classes, so as well as autousing
-Test::Most, you'll get L<Test::MockObject> and L<Moose>.
 
 Note that, if you need to do anything special in the way of import arguments,
 you should do the C<use> yourself. We're all about the 80:20 rule here.
