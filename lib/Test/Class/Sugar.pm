@@ -305,7 +305,15 @@ Gets translated to:
 
 See L<Test::Class/Test> for details of C<PLAN>'s semantics.
 
-=item B<startup>, B<setup>, B<teardown>, C<shutdown>
+=head2 Lifecycle Methods
+
+=item B<startup>
+
+=item B<setup>
+
+=item B<teardown>
+
+=item B<shutdown>
 
 These lifecycle helpers work in pretty much the same way as L</test>, but with
 the added wrinkle that, if you don't supply a name, they generate method names
@@ -323,7 +331,13 @@ is equivalent to writing:
     }
 
 Other than that, the lifecycle helpers behave pretty much as described in
-L<Test::Class|Test::Class/Test>. 
+L<Test::Class|Test::Class/Test>. In particular, you can still give them names, so
+
+    testclass {
+        setup with a name {...}
+    }
+
+works just fine.
 
 =back
 
