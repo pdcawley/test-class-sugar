@@ -98,4 +98,27 @@ testclass LifeCycle {
     }
 }
 
+testclass LifeCycleWithNamedMethods {
+    my $log = '';
+    
+    startup with name { $log .= 'startup ' }
+    setup with name   { $log .= 'setup '}
+    test one >> 0 { $log .= 'test ' }
+    test two >> 0 { $log .= 'test ' }
+    teardown with name { $log .= 'teardown '}
+    shutdown with name >> 1 {
+        is $log, 'startup setup test teardown setup test teardown ',
+    }
+}
+
+testclass MultipleLifeCycleMethods {
+    my $log = '';
+
+    setup a { $log .= 'A' }
+    setup b { $log .= 'B' }
+    test expectations {
+        is $log, 'AB';
+    }
+}
+
 Test::Class->runtests;
