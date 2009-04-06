@@ -172,7 +172,7 @@ What Perl sees, after Test::Class::Sugar has done its work, is roughly:
     }
 
 Some of the assumptions we made are overrideable, others aren't. Yet. Most of
-them will be though.
+them will be though. See L</Changing Assumptions> for details
 
 =head2 Why you shouldn't use Test::Class::Sugar
 
@@ -313,6 +313,53 @@ L<Test::Class|Test::Class/Test>. In particular, you can still give them names, s
     }
 
 works just fine.
+
+=back
+
+=head2 Changing Assumptions
+
+There are several aspects of Test::Class::Sugar's policy that you may disagree with. If you do, you can adjust them by passing a 'defaults' hash at use time. For example:
+
+    use Test::Class::Sugar defaults => { prefix => TestSuite };
+
+Here's a list of the possible default settings and what they affect.
+
+=over
+
+=item prefix
+
+Changes the prefix used for autogenerating test class names from C<Test::> to whatever you specify, so:
+
+    use Test::Class::Sugar defaults => { prefix => TestSuite };
+
+    testclass exercises Something {
+        ...
+    }
+
+will build a test class called C<TestSuite::Something>
+
+=item test_instance
+
+B<COMING SOON>
+
+Prefer C<$self> to C<$test> in your test methods? Then the C<test_instance> default is your friend. Just do
+
+    use Test::Class::Sugar defaults => { test_instance => '$self' }
+
+and all manner of things shall be well.
+
+
+
+=item uses
+
+B<< COMING SOON, BUT PROBABLY LATER THAN C<test_instance> >>
+
+Bored of adding the same old C<uses> clause to your every testclass? Fix it at use time like so:
+
+    use Test::Class::Sugar
+        defaults => {
+            uses => [qw/Test::More Moose/]
+        };
 
 =back
 
