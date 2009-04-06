@@ -29,16 +29,20 @@ use Sub::Exporter -setup => {
     installer => sub {
         my ($args, $to_export) = @_;
         my $pack = $args->{into};
+        unless (@$to_export) {
+            unshift @$to_export, 'testclass', \&testclass;
+        }
         foreach my $name (@$to_export) {
             if (my $parser = __PACKAGE__->can($PARSER_FOR{$name}//'-NOTHING-')) {
                 Devel::Declare->setup_for(
                     $pack,
-                    { $name => { const => sub { $parser->($pack, @_) } } },
+                    { $name => { const => sub { $parser->($pack, $args->{col}{defaults}, @_) } } },
                 );
             }
         }
         Sub::Exporter::default_installer(@_);
-    }
+    },
+    collectors => [qw/defaults/],
 };
 
 sub _test_generator {
@@ -51,7 +55,12 @@ sub _test_generator {
 }
 
 sub _testclass_generator {
-    my($ctx, $classname, $options) = @_;
+    my($ctx, $classname, $defaults, $options) = @_;
+
+    foreach my $key (keys %$defaults) {
+        $options->{$key} //= $defaults->{$key};
+    }
+    
     my $ret = Test::Class::Sugar::CodeGenerator->new(
         context   => $ctx,
         options   => $options,
@@ -63,6 +72,7 @@ sub _testclass_generator {
 
 sub _parse_inner_keyword {
     my $pack = shift;
+    my $defaults = shift;
 
     local $Carp::Internal{'Devel::Declare'} = 1;
 
@@ -80,36 +90,9 @@ sub _parse_inner_keyword {
     return;
 }
 
-sub _testclass_preamble {
-    my($ctx, $classname, $options) = @_;
-    my $preamble = '';
-
-    unless ($classname) {
-        $options->{class_under_test}
-        // croak "Must specify a testclass name or a class to exercise";
-        $classname = "Test::" . $options->{class_under_test} ;
-    }
-
-    $preamble .= "package ${classname}; use strict; use warnings;";
-    $preamble .= "use " . __PACKAGE__ . " qw/-inner/;";
-
-    my $baseclasses = $options->{base} || "Test::Class";
-    $options->{helpers} //= ['Test::Most'];
-
-    $preamble .= "use base qw/${baseclasses}/;";
-
-    foreach my $helper (@{$options->{helpers}}) {
-        $preamble .= "use ${helper};";
-    }
-
-    if (my $testedclass = $options->{class_under_test}) {
-        $preamble .= "require ${testedclass} unless \%${testedclass}::; sub subject { \"${testedclass}\" };"
-    }
-     $ctx->scope_injector_call() . $preamble;
-}
-
 sub _parse_testclass {
     my $pack = shift;
+    my $defaults = shift;
 
     local $Carp::Internal{'Devel::Declare'} = 1;
 
@@ -117,7 +100,7 @@ sub _parse_testclass {
 
     $ctx->skip_declarator;
     my $classname = $ctx->strip_testclass_name;
-    _testclass_generator($ctx, $classname, $ctx->strip_options)
+    _testclass_generator($ctx, $classname, $defaults, $ctx->strip_options)
         ->install_testclass;
 }
 

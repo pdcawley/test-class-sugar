@@ -22,9 +22,15 @@ class Test::Class::Sugar::CodeGenerator {
         lazy_build => 1,
     );
 
+    method _classname_prefix {
+        my $prefix = $self->options->{prefix} || "Test";
+        $prefix =~ s/(?:::)?$/::/;
+        $prefix;
+    }
+
     method _build_classname {
         if ($self->options->{class_under_test}) {
-            "Test::" . $self->options->{class_under_test};
+            $self->_classname_prefix . $self->options->{class_under_test};
         }
         else {
             $self->context->get_curstash_name
