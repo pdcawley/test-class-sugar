@@ -1,4 +1,5 @@
 package Test::Class::Sugar::Context;
+our $VERSION = '0.0200';
 use Modern::Perl;
 use base qw/Devel::Declare::Context::Simple/;
 

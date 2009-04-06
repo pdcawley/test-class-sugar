@@ -5,6 +5,7 @@ class Test::Class::Sugar::CodeGenerator {
     use Sub::Name;
     use Carp qw/croak/;
     use B::Hooks::EndOfScope;
+    our $VERSION = '0.0200';
 
     has name    => (is => 'rw', isa => 'Str');
     has plan    => (is => 'rw');
