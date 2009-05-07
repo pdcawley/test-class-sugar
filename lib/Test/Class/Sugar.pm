@@ -60,7 +60,7 @@ sub _testclass_generator {
     foreach my $key (keys %$defaults) {
         $options->{$key} //= $defaults->{$key};
     }
-    
+
     my $ret = Test::Class::Sugar::CodeGenerator->new(
         context   => $ctx,
         options   => $options,
@@ -125,6 +125,7 @@ Test::Class::Sugar - Helper syntax for writing Test::Class tests
 
     testclass exercises Person {
         # Test::Most has been magically included
+        # 'warnings' and 'strict' are turned on
 
         startup >> 1 {
             use_ok $test->subject;
@@ -176,18 +177,18 @@ them will be though. See L</Changing Assumptions> for details
 
 =head2 Why you shouldn't use Test::Class::Sugar
 
-Test::Class::Sugar is very new, pretty untested and is inadvertently hostile
+Test::Class::Sugar is very new, mostly untested and is inadvertently hostile
 to you if you confuse its parser. Don't use it if you want to live.
 
 =head2 Why you should use Test::Class::Sugar
 
-But it's so shiny. Test::Class::Sugar was written to scratch an itch I had
+It's so shiny! Test::Class::Sugar was written to scratch an itch I had
 when writing some tests for a L<MooseX::Declare> based module. Switching from
 the implementation code to the test code was like shifting from fifth to first
 gear in one fell swoop. Not fun. This is my attempt to sprinkle some
 C<Devel::Declare> magic dust over the testing experience.
 
-=head2 Bear this in mind
+=head2 Bear this in mind:
 
 B<Test::Class::Sugar is not a source filter>
 
@@ -201,12 +202,17 @@ responsibility for parsing that back to Perl. Obviously, it's still possible
 for that to screw things up royally, but there are fewer opportunities to fuck
 up.
 
-We now return you to your regularly schedule documentation.
+We now return you to your regularly scheduled documentation.
 
 =head1 SYNTAX
 
 Essentially, Test::Class::Sugar adds some new keywords to perl. Here's what
 they do, and what they expect.
+
+(Syntax is described in the semi-standard half-arsed Backus-Naur Form
+beloved of crappy language documentation efforts everywhere. If you can't read
+it by now, find someone who can and blackmail them into writing a BNF free
+tutorial and I for one will thank you for it.)
 
 =over
 
@@ -239,8 +245,10 @@ Sometimes, you don't want to inherit directly from B<Test::Class>. If that's
 the case, add an C<extends> clause, and your worries will be over. The extends
 clause supports, but emphatically does not encourage, multiple
 inheritance. Friends don't let friends do multiple inheritance, but
-Test::Class::Sugar's not a friend, it's a robot servant which will provide you
-with more than enough rope.
+Test::Class::Sugar's not a friend, it's a robot servant which knows nothing of
+Asimov's Laws. If you insist on asking it for a length of rope with a loop at
+the end and a rickety stepladder on which to stand, it will be all too happy to
+assist.
 
 =item uses HELPER (, HELPER)*
 
@@ -263,9 +271,9 @@ you should do the C<use> yourself. We're all about the 80:20 rule here.
 
 =item B<test>
 
-    test WORD ( WORD )* (>> PLAN) { ... }
+    test WORD ( WORD )* (>> PLAN)? { ... }
 
-I may be fooling myself, but I hope its obvious what this does. Here's a few
+I may be fooling myself, but I hope its mostly obvious what this does. Here's a few
 examples to show you what's happening:
 
     test with multiple subtests >> 3 {...}
@@ -278,7 +286,11 @@ Gets translated to:
     sub test_with_no_plan : Test(no_plan) {...}
     sub a_complicated_description_with_symbols_in_it : Test {...}
 
-See L<Test::Class/Test> for details of C<PLAN>'s semantics.
+C<< >> PLAN >> is used to declare the number of subtests run by a given
+message. It's not the most obvious choice I know, but I gave up on trying to
+use C<:> after losing a few rounds with Perl over loop labels.
+
+See L<Test::Class|Test::Class/Test> for details of C<PLAN>'s semantics.
 
 =head2 Lifecycle Methods
 
@@ -290,10 +302,12 @@ See L<Test::Class/Test> for details of C<PLAN>'s semantics.
 
 =item B<shutdown>
 
+    (startup|setup|teardown|shutdown) ( WORD )* (>> PLAN)? { ... }
+
 These lifecycle helpers work in pretty much the same way as L</test>, but with
 the added wrinkle that, if you don't supply a name, they generate method names
 derived from the name of the test class and the name of the helper, so, for
-instance: 
+instance:
 
     testclass Test::Lifecycle::Autonaming {
         setup { ... }
@@ -305,8 +319,9 @@ is equivalent to writing:
         setup 'setup_Test_Lifecycle_Autonaming' {...}
     }
 
-Other than that, the lifecycle helpers behave pretty much as described in
-L<Test::Class|Test::Class/Test>. In particular, you can still give them names, so
+Other than that, the lifecycle helpers behave as described in
+L<Test::Class|Test::Class/Test>. In particular, you can still give them names,
+so
 
     testclass {
         setup with a name {...}
@@ -318,7 +333,9 @@ works just fine.
 
 =head2 Changing Assumptions
 
-There are several aspects of Test::Class::Sugar's policy that you may disagree with. If you do, you can adjust them by passing a 'defaults' hash at use time. For example:
+There are several aspects of Test::Class::Sugar's policy that you may disagree
+with. If you do, you can adjust them by passing a 'defaults' hash at use
+time. For example:
 
     use Test::Class::Sugar defaults => { prefix => TestSuite };
 
@@ -389,6 +406,18 @@ without making things worse.
 =head2 Unknown bugs
 
 There's bound to be some.
+
+=head2 We still don't play well with MooseX::Declare
+
+It would be useful to pinch some of L<MooseX::Declare>'s magic for writing
+helper methods. Something like:
+
+    helper whatever ($arg) {
+        lives_ok { $test->subject->new($arg) }
+    }
+
+could be rather handy.
+
 
 =head2 Patches welcome.
 
