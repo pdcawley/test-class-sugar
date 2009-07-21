@@ -1,7 +1,5 @@
 package Test::Class::Sugar;
 
-use Modern::Perl;
-
 use Devel::Declare ();
 use Devel::Declare::Context::Simple;
 use B::Hooks::EndOfScope;
@@ -11,7 +9,7 @@ use Carp qw/croak/;
 
 use namespace::clean;
 
-our $VERSION = '0.0200';
+our $VERSION = '0.0300';
 
 my %PARSER_FOR = (
     testclass => '_parse_testclass',

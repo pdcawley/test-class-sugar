@@ -1,5 +1,3 @@
-use Modern::Perl;
-
 BEGIN {
     package Foo;
     sub foo {'foo'};

@@ -1,4 +1,3 @@
-use Modern::Perl;
 use Test::Class::Sugar;
 
 testclass Some::Class::Name {

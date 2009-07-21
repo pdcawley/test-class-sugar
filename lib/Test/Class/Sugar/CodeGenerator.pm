@@ -1,4 +1,3 @@
-use Modern::Perl;
 use MooseX::Declare;
 
 class Test::Class::Sugar::CodeGenerator {

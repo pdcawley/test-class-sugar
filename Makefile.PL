@@ -9,7 +9,6 @@ all_from 'lib/Test/Class/Sugar.pm';
 
 recommends 'Test::Most';
 
-requires "Modern::Perl";
 requires "Test::Class" => '0.32_1';
 requires "Sub::Name";
 requires "Devel::Declare" => '0.003005';
