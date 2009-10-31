@@ -43,6 +43,7 @@ sub strip_names {
 
     unless($self->looking_at('>>')) {
         while (! $self->looking_at(qr/(?:{|>>)/,1) ) {
+            $self->looking_at(qr{\w}) or croak("I don't understand ", $self->peek_next_char);
             $name .= ('_' . $self->strip_name)
             // croak "Expecting a simple name; try quoting it";
             $self->skipspace;
@@ -79,6 +80,12 @@ sub looking_at {
     }
 
     $buffer =~ /^$expected/;
+}
+
+sub peek_next_char {
+    my $self = shift;
+    my $buffer = $self->get_buffer;
+    return substr($buffer, 0, 1);
 }
 
 sub strip_plan {
