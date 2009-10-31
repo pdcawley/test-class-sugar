@@ -9,7 +9,7 @@ all_from 'lib/Test/Class/Sugar.pm';
 
 recommends 'Test::Most';
 
-requires "Test::Class" => '0.32_1';
+requires "Test::Class" => '0.33';
 requires "Sub::Name";
 requires "Devel::Declare" => '0.003005';
 requires "B::Hooks::EndOfScope";
