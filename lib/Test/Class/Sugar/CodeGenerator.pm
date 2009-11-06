@@ -74,7 +74,8 @@ class Test::Class::Sugar::CodeGenerator {
     }
 
     method helpers {
-        @{$self->options->{helpers} //= [qw{Test::Most}]};
+        $self->options->{helpers} = [qw{Test::Most}] unless defined $self->options->{helpers};
+        @{$self->options->{helpers}};
     }
 
     method use_helpers_string {
@@ -109,8 +110,9 @@ class Test::Class::Sugar::CodeGenerator {
 
     method inject_testclass {
         $self->context->skipspace;
-        $self->context->inject_if_block($self->testclass_preamble) //
-          croak "Expecting an opening brace";
+        my $inject = $self->context->inject_if_block($self->testclass_preamble);
+        croak "Expecting an opening brace" unless defined $inject;
+        $inject;
     }
 
     method shadow_testclass {
@@ -118,8 +120,8 @@ class Test::Class::Sugar::CodeGenerator {
     }
 
     method install_testclass {
-        $self->has_classname
-          // croak "You provide either a class name or an exercises clause";
+        croak "You provide either a class name or an exercises clause"
+            unless defined $self->has_classname;
 
         $self->inject_testclass;
         $self->shadow_testclass;

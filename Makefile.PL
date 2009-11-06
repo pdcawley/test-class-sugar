@@ -4,7 +4,7 @@ use warnings;
 use inc::Module::Install 0.77;
 
 name  'Test-Class-Sugar';
-perl_version '5.010000';
+perl_version '5.008008';
 all_from 'lib/Test/Class/Sugar.pm';
 
 recommends 'Test::Most';

@@ -31,7 +31,8 @@ use Sub::Exporter -setup => {
             unshift @$to_export, 'testclass', \&testclass;
         }
         foreach my $name (@$to_export) {
-            if (my $parser = __PACKAGE__->can($PARSER_FOR{$name}//'-NOTHING-')) {
+            my $parser_called = defined $PARSER_FOR{$name} ? $PARSER_FOR{$name} : '-NOTHING-';
+            if (my $parser = __PACKAGE__->can($parser_called)) {
                 Devel::Declare->setup_for(
                     $pack,
                     { $name => { const => sub { $parser->($pack, $args->{col}{defaults}, @_) } } },
@@ -56,7 +57,7 @@ sub _testclass_generator {
     my($ctx, $classname, $defaults, $options) = @_;
 
     foreach my $key (keys %$defaults) {
-        $options->{$key} //= $defaults->{$key};
+        defined $options->{$key} ? () : ($options->{$key} = $defaults->{$key});
     }
 
     my $ret = Test::Class::Sugar::CodeGenerator->new(

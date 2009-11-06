@@ -44,8 +44,8 @@ sub strip_names {
     unless($self->looking_at('>>')) {
         while (! $self->looking_at(qr/(?:{|>>)/,1) ) {
             $self->looking_at(qr{\w}) or croak("I don't understand ", $self->peek_next_char);
-            $name .= ('_' . $self->strip_name)
-            // croak "Expecting a simple name; try quoting it";
+            $name .= ('_' . $self->strip_name);
+            croak "Expecting a simple name; try quoting it" unless defined $name;
             $self->skipspace;
         }
     }
@@ -70,7 +70,9 @@ sub strip_test_name {
 
 sub looking_at {
     my($self, $expected, $len) = @_;
-    $len //= ref($expected) ? undef : length($expected);
+    unless (defined $len) {
+        $len = ref($expected) ? undef : length($expected);
+    }
 
     $expected = quotemeta($expected) unless ref($expected);
 
@@ -115,10 +117,10 @@ sub strip_options {
     my %ret;
 
     while (!$self->looking_at(qr/[{"]/)) {
-        $self->strip_base_classes(\%ret)
-        // $self->strip_helper_classes(\%ret)
-        // $self->strip_class_under_test(\%ret)
-        // croak 'Expected option name';
+        defined $self->strip_base_classes(\%ret)     ? () 
+      : defined $self->strip_helper_classes(\%ret)   ? ()
+      : defined $self->strip_class_under_test(\%ret) ? ()
+      : croak 'Expected option name';
         $self->skipspace;
     }
 
@@ -132,8 +134,9 @@ sub strip_class_under_test {
 
     croak "testclass can only exercise one class" if $opts->{class_under_test};
 
-    $opts->{class_under_test} = $self->strip_name
-      // croak "Expected a class name";
+    my $name = $self->strip_name;
+    croak "Expected a class name" unless defined $name;
+    $opts->{class_under_test} = $name;
     return 1;
 }
 
@@ -142,7 +145,7 @@ sub strip_helper_classes {
     my($self, $opts) = @_;
     return unless $self->strip_string('uses');
 
-    $opts->{helpers} //= [];
+    $opts->{helpers} = [] unless defined $opts->{helpers};
 
     while (1) {
         $self->skipspace;
@@ -151,8 +154,8 @@ sub strip_helper_classes {
             $helper .= 'Test::';
         }
 
-        $helper .= $self->strip_name
-          // croak "Expecting a test helper name";
+        my $name = $self->strip_name;
+        $helper .= $name;
         push @{$opts->{helpers}}, $helper;
         return 1 unless $self->strip_comma;
     }
@@ -165,8 +168,8 @@ sub strip_base_classes {
     while (1) {
         $self->skipspace;
 
-        my $baseclass = $self->strip_name
-          // croak 'expecting a base class';
+        my $baseclass = $self->strip_name;
+        croak 'expecting a base class' unless defined $baseclass;
         $ret->{base} .= "$baseclass ";
         return 1 unless $self->strip_comma;
     }
