@@ -40,11 +40,3 @@ testclass exercises Something {
 }
 </code></pre>
 
-h2. Prerequisites
-
-There will be a proper list of library prerequisites in Makefile.PL by the
-time this gets properly released, but at the time of writing there are a
-couple of requirements that can't be fulfilled from CPAN.
-
-You'll need a bleeding edge
-"Devel::Declare":http://github.com/rafl/devel-declare from Github
