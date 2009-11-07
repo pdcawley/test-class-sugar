@@ -9,7 +9,7 @@ use Carp qw/croak/;
 
 use namespace::clean;
 
-our $VERSION = '0.0300';
+our $VERSION = '0.0400';
 
 my %PARSER_FOR = (
     testclass => '_parse_testclass',
@@ -432,6 +432,17 @@ programmer.
 =head1 AUTHOR
 
 Piers Cawley C<< <pdcawley@bofh.org.uk> >>
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to Adrian Howard for the original Test::Class, and to Adam Kennedy for
+taking on the maintenance of it.
+
+Thanks to my contributors:
+
+Hans Dieter Pearcey for documentation fixes and Joel Bernstein for doing the
+boring work of making this all work with Perl 5.8 (which means I can start
+using this at work!)
 
 =head1 LICENCE AND COPYRIGHT
 
