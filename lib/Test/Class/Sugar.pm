@@ -440,9 +440,10 @@ taking on the maintenance of it.
 
 Thanks to my contributors:
 
-Hans Dieter Pearcey for documentation fixes and Joel Bernstein for doing the
+Hans Dieter Pearcey for documentation fixes, Joel Bernstein for doing the
 boring work of making this all work with Perl 5.8 (which means I can start
-using this at work!)
+using this at work!) and Joel's employers, NET-A-PORTER - L<http://www.net-a-porter.com>
+for sponsoring that work.
 
 =head1 LICENCE AND COPYRIGHT
 
